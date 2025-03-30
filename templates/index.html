@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: magenta
+        }
+    </style>
+    <title>TETRIS</title>
+</head>
+<body>
+    <canvas id="canvas" width="360" height="630"></canvas>
+    <script src="{{ url_for('static', filename='tetris.js' )}}"></script>
+</body>
+</html>
