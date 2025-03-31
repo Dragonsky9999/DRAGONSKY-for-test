@@ -28,13 +28,19 @@ function drawBackground(){
 drawBackground();
 
 //block
-
-const gridSize = 30;
+// 20行 10列のボードを作成
+let board = [];
+for (let row = 0; row < 20; row++) {
+    board[row] = [];
+    for (let col = 0; col < 10; col++) {
+        board[row][col] = "0";  // 初期値として "0" をセット
+    }
+}const gridSize = 30;
 const columns = 10;
 const rows = 20;
 
-let blockX = 5;
-let blockY = 1;
+let blockX = 4;
+let blockY = 0;
 
 const I = {
     "shape":[
@@ -83,6 +89,7 @@ const block = [I, O, T, Z, S, L, J]
 let num = Math.floor(Math.random() * 6);
 let blocktype = block[num];
 let current_shape = block[num].shape
+let shapeHeight = current_shape[0].length
 
 //blockを描画
 function draw_block(x, y){
@@ -91,11 +98,11 @@ function draw_block(x, y){
             if (current_shape[i][j] === "1"){
                 ctx.beginPath();
                 ctx.fillStyle = blocktype.color;
-                ctx.fillRect((x+i) * gridSize, (y-1+j) * gridSize , gridSize, gridSize);
+                ctx.fillRect((blockX + j + 1) * gridSize, (blockY + i) * gridSize , gridSize, gridSize);
                 ctx.beginPath();
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = "2";
-                ctx.strokeRect((x+i) * gridSize, (y-1+j) * gridSize , gridSize, gridSize);
+                ctx.strokeRect((blockX + j + 1) * gridSize, (blockY + i) * gridSize , gridSize, gridSize);
             }
         }
     }
@@ -112,7 +119,7 @@ function RotateShape(){
         }
     }
     current_shape = newShape
-    if (blockX + current_shape.length >= 12) blockX = 11 - current_shape.length;
+    if (blockX + current_shape[0].length > 10) blockX = 10 - current_shape[0].length;
     requestAnimationFrame(drawBoard)
 
 }
@@ -121,59 +128,133 @@ function RotateShape(){
 function drawBoard(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground();
-    draw_block(blockX, blockY);
+    for (let i=0; i<board.length; i++){
+        for (let j=0; j<board[i].length; j++){
+            if (board[i][j] === "1"){
+
+                ctx.beginPath();
+                ctx.fillStyle = "rgb(200, 200, 200)";
+                ctx.fillRect((j+1)*gridSize, i*gridSize, gridSize, gridSize);
+                ctx.lineWidth = "2";
+                ctx.strokeStyle = "rgb(0, 0, 0)";
+                ctx.strokeRect((j+1)*gridSize, i*gridSize, gridSize, gridSize);
+                
+            }
+        }
+    }
+    draw_block(blockX, blockY)
 }
+
+//新しいテトリミノを生成
+function spawnBlock(){
+        let num = Math.floor(Math.random() * 6);
+        blocktype = block[num];
+        current_shape = block[num].shape
+        blockX = 4;
+        blockY = 0;
+        requestAnimationFrame(drawBoard);
+}
+
+//テトリミノを置く
+function placeblock(){
+    for (let row=0; row<current_shape.length; row++){
+        for (let col=0; col<current_shape[row].length; col++)
+            if (current_shape[row][col] === "1"){
+                let BoardRow = blockY + row;
+                let BoardCol = blockX + col;
+                board[BoardRow][BoardCol] = "1";
+                console.log(board)
+            }
+    }
+}          
 
 //1秒毎にブロックを一つ下に移動
 function update(){
-    blockY++;
-    if (blockY > rows) {
-        blockY = 1;
-    let num = Math.floor(Math.random() * 6);
-    blocktype = block[num];
-    current_shape = block[num].shape
-    blockX = 5
+    let shapeHeight = current_shape.length
+    if (blockY + shapeHeight < 20 ){
+        blockY++;
+        requestAnimationFrame(drawBoard);
+    }else{
+        placeblock();
+        spawnBlock();
+    }
 }
-    requestAnimationFrame(drawBoard)
+//loop
+setInterval(update, 1000);
+
+//下へ動ける？
+function canMoveDown(){
+    for (let row=0; row<current_shape.length; row++){
+        for (let col=0; col<current_shape[row].length; col++){
+            if (current_shape[row][col] === "1"){
+                let BoardRow = blockY + row;
+                let BoardCol = blockX + col;
+                let newRow = BoardRow + 1;
+
+                if (newRow > board.length) return false;
+                if (board[newRow][BoardCol] === "1"){
+                    return false;
+                }else if (board[newRow][BoardCol] == "undefined"){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }
+
+
 
 //左右移動&回転
 window.addEventListener("keydown", (event) =>{
     let key = event.key;
-
+    console.log(key)
+    //左へ
     if (key === "j" || key === "ArrowLeft"){
-            if (blockX -1 > 0){
-                blockX--;
-            }
+        if (blockX > 0){
+            blockX--;
+        }
         requestAnimationFrame(drawBoard)
-        }else if(key === "l" || key === "ArrowRight"){
-            let shapeWidth = current_shape.length
-            console.log(shapeWidth + blockX)
-            if (blockX + shapeWidth < 11){
-                blockX++;
-            }
-        requestAnimationFrame(drawBoard)
-        }else if(key === ","){
-        blockY = 20;
-        requestAnimationFrame(drawBoard)
-        }else if(key === "I"){
+    //右へ
+    }else if(key === "l" || key === "ArrowRight"){
+        let shapeWidth = current_shape[0].length
+        if (blockX + shapeWidth < 10){
+            blockX++;
+        }
+    requestAnimationFrame(drawBoard)
+    //急降下
+    }else if(key === ","){
+        let shapeHeight = current_shape.length
+        blockY = 21 - shapeHeight;
+        if (canMoveDown()){
+            requestAnimationFrame(drawBoard)
+        }
+    //上へ（チート）
+    }else if(key === "I"){
         blockY--;
         requestAnimationFrame(drawBoard)
-        }else if(key === "k"){
-        blockY++;
-        requestAnimationFrame(drawBoard)
-        }else if(key === "."){
-        //右回転
+    //下へ
+    }else if(key === "k"){
+        if (canMoveDown()){
+            blockY++;
+            requestAnimationFrame(drawBoard)
+        }else{
+            placeblock();
+            spawnBlock();
+        }
+    //右回転
+    }else if(key === "u"){
         RotateShape();
         RotateShape();
         RotateShape();
-    }else if(key === "m"){
-        //左回転
+    //左回転
+    }else if(key === "o"){
         RotateShape();
+    //スポーン（チート）
+    }else if(key === "S"){
+        spawnBlock();
     }
 })
 
-//loop
-setInterval(update, 1000);
 
-requestAnimationFrame(drawBoard)
+requestAnimationFrame(drawBoard);
