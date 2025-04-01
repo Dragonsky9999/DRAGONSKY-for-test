@@ -25,7 +25,6 @@ function drawBackground(){
     ctx.stroke();
 
 }
-drawBackground();
 
 //block
 // 20行 10列のボードを作成
@@ -86,10 +85,10 @@ const J = {
 
 
 const block = [I, O, T, Z, S, L, J]
-let num = Math.floor(Math.random() * 6);
+let num = Math.floor(Math.random() * 7);
 let blocktype = block[num];
 let current_shape = block[num].shape
-let shapeHeight = current_shape[0].length
+let shapeHeight = current_shape.length
 
 //blockを描画
 function draw_block(x, y){
@@ -120,8 +119,8 @@ function RotateShape(){
     }
     current_shape = newShape
     if (blockX + current_shape[0].length > 10) blockX = 10 - current_shape[0].length;
-    requestAnimationFrame(drawBoard)
-
+    
+    requestAnimationFrame(drawBoard);
 }
 
 //画面をクリアして、ブロックを描画
@@ -163,15 +162,15 @@ function placeblock(){
                 let BoardRow = blockY + row;
                 let BoardCol = blockX + col;
                 board[BoardRow][BoardCol] = "1";
-                console.log(board)
             }
     }
+    lineclear();
+    GameOver();
 }          
 
 //1秒毎にブロックを一つ下に移動
 function update(){
-    let shapeHeight = current_shape.length
-    if (blockY + shapeHeight < 20 ){
+    if (canMoveDown()){
         blockY++;
         requestAnimationFrame(drawBoard);
     }else{
@@ -191,7 +190,7 @@ function canMoveDown(){
                 let BoardCol = blockX + col;
                 let newRow = BoardRow + 1;
 
-                if (newRow > board.length) return false;
+                if (newRow >= board.length) return false;
                 if (board[newRow][BoardCol] === "1"){
                     return false;
                 }else if (board[newRow][BoardCol] == "undefined"){
@@ -203,41 +202,116 @@ function canMoveDown(){
     return true;
 }
 
+//右への当たり判定
+function canMoveRight(){
+    for (let row=0; row<current_shape.length; row++){
+        for (let col=0; col<current_shape[row].length; col++){
+            if (current_shape[row][col] === "1"){
+                let BoardRow = blockY+row;
+                let BoardCol = blockX+col;
+                let newCol = BoardCol + 1;
+
+                if (newCol >= board[row].length) return false;
+                if (board[BoardRow][newCol] === "1") return false;
+            }
+        }
+    }
+    return true;
+}
+
+//左への当たり判定
+function canMoveLeft(){
+    for (let row=0; row<current_shape.length; row++){
+        for (let col=0; col<current_shape[row].length; col++){
+            if (current_shape[row][col] === "1"){
+                let BoardRow = blockY+row;
+                let BoardCol = blockX+col;
+                let newCol = BoardCol - 1;
+
+                if (newCol < 0 ) return false;
+                if (board[BoardRow][newCol] === "1") return false;
+            }
+        }
+    }
+    return true;
+}
+
+//harddropできる距離を計測
+function getDropDistance(){
+    let distance = 0;
+    while (true){
+        for (let row=0; row<current_shape.length; row++){
+            for (let col=0; col<current_shape[row].length; col++){
+                if (current_shape[row][col] === "1"){
+                    let BoardRow = blockY + row + distance + 1;
+                    let BoardCol = blockX + col;
+                    if (BoardRow >= board.length || board[BoardRow][BoardCol] === "1"){
+                        return distance;
+                    }
+                }
+            }
+        }
+        distance++;
+    }
+}
+
+//ハードドロップ
+function HardDrop(){
+    let dropDistance = getDropDistance();
+    blockY += dropDistance;
+    placeblock();
+    spawnBlock();
+}
+
+//ライン消去
+function lineclear(){
+    let cleared = false;
+    for (let row = board.length - 1; row >=0; row--){
+        if (board[row].join("") === "1111111111"){
+            board.splice(row, 1);
+            board.unshift(Array(10).fill("0"));
+            cleared = true;
+        }
+    }
+    if (cleared) requestAnimationFrame(drawBoard);
+}
+
+//1番上に来たらGAME OVER
+function GameOver(){
+    if (board[0].includes("1")){
+        window.alert("GAME OVER");
+        reset();
+    }
+}
 
 
 //左右移動&回転
 window.addEventListener("keydown", (event) =>{
     let key = event.key;
-    console.log(key)
-    //左へ
-    if (key === "j" || key === "ArrowLeft"){
-        if (blockX > 0){
-            blockX--;
-        }
-        requestAnimationFrame(drawBoard)
     //右へ
-    }else if(key === "l" || key === "ArrowRight"){
-        let shapeWidth = current_shape[0].length
-        if (blockX + shapeWidth < 10){
+    if(key === "l" || key === "ArrowRight"){
+        if (canMoveRight()){
             blockX++;
+            requestAnimationFrame(drawBoard);
         }
-    requestAnimationFrame(drawBoard)
+        //左へ
+    }if (key === "j" || key === "ArrowLeft"){
+        if (canMoveLeft()){
+            blockX--;
+            requestAnimationFrame(drawBoard);
+        }
     //急降下
     }else if(key === ","){
-        let shapeHeight = current_shape.length
-        blockY = 21 - shapeHeight;
-        if (canMoveDown()){
-            requestAnimationFrame(drawBoard)
-        }
+        HardDrop();
     //上へ（チート）
     }else if(key === "I"){
         blockY--;
-        requestAnimationFrame(drawBoard)
+        requestAnimationFrame(drawBoard);
     //下へ
     }else if(key === "k"){
         if (canMoveDown()){
             blockY++;
-            requestAnimationFrame(drawBoard)
+            requestAnimationFrame(drawBoard);
         }else{
             placeblock();
             spawnBlock();
@@ -256,5 +330,32 @@ window.addEventListener("keydown", (event) =>{
     }
 })
 
-
+//1回だけ表示
 requestAnimationFrame(drawBoard);
+
+//reset
+function reset(){
+    //ボードを初期化
+    board = [];
+    for (let row = 0; row < 20; row++) {
+        board[row] = [];
+        for (let col = 0; col < 10; col++) {
+            board[row][col] = "0";
+        }
+    }
+    //現在のブロックを初期化
+    num = Math.floor(Math.random() * 7);
+    blocktype = block[num];
+    current_shape = block[num].shape
+    shapeHeight = current_shape.length
+    //ブロック座標を初期化
+    blockX=4;
+    blockY=0;
+    //ボードを表示
+    drawBoard();
+}
+
+//reset
+document.getElementById("reset").addEventListener("click", () => {
+    reset();
+})
