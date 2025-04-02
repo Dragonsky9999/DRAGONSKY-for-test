@@ -1,24 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        color: magenta
-        }
-    </style>
-    <title>TETRIS</title>
-</head>
-<body>
-    <button id="reset">リセット</button>
-    
-    <canvas id="canvas" width="360" height="630"></canvas>
-    <script src="{{ url_for('static', filename='tetris.js' )}}"></script>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}
+<title>スネークゲーム</title>
+<style>
+    body{
+        background-color:rgb(53, 219, 30)
+    }
+    input{
+        display:flex;
+        margin-left:100px;
+        margin-top:0;
+    }
+    canvas{
+        display:flex;
+        margin-left: 125px;
+        margin-top:50px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="size:100px; color:rgb(255, 47, 47)">スネークゲーム</h1>
+<input type="number" id="speed" placeholder="SPEED" value="100">
+<input type="number" id="boardSize" placeholder="BOARD SIZE" value="20">
+<button id="reset">リセット</button>
+
+<canvas id="canvas"></canvas>
+<script src="{{ url_for('static', filename='test.js' )}}"></script>
+{% endblock %}
