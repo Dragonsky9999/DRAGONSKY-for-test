@@ -1,30 +1,127 @@
 {% extends "base.html" %}
 
 {% block title %}
-<title>スネークゲーム</title>
+<title>フラッピーゲーム</title>
 <style>
     body{
-        background-color:rgb(53, 219, 30)
+        background-color:rgb(20, 205, 255)
     }
-    input{
+    #parentCanvas{
         display:flex;
-        margin-left:100px;
-        margin-top:0;
+        justify-content: center;
+        align-items: center;
+    }
+    .title{
+        top:0; left:0;
+        width:100%;
+        text-align: center;
+    }
+    #FlappyBird{
+        display:inline-block;
+        background-color: rgba(0,0,0,0.8);
+        size:100px;
+        color:rgb(255, 47, 47); 
+        font-family:monospace;
+        padding: 10px 50px;
     }
     canvas{
         display:flex;
-        margin-left: 125px;
-        margin-top:50px;
+        padding: 10px;
+        touch-action: none;
+        -webkit-touch-callout: none;
     }
 </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Underdog&display=swap" rel="stylesheet">
+
 {% endblock %}
 
 {% block content %}
-<h1 style="size:100px; color:rgb(255, 47, 47)">スネークゲーム</h1>
-<input type="number" id="speed" placeholder="SPEED" value="100">
-<input type="number" id="boardSize" placeholder="BOARD SIZE" value="20">
-<button id="reset">リセット</button>
+<div class="title">
+    <h1 id="FlappyBird">Flappy Bird</h1>
+</div>
 
-<canvas id="canvas"></canvas>
+<div id="parentCanvas"></div>
+
+<div id="popup" class="hidden">
+    <div id="popup-box">
+        <h2 id=GameOver>Game Over!!!!</h2>
+        <p id="scoreText">Score: 0 点</p>
+        <button id="close">やめる</button>
+        <button id="reset">もう一度プレイ</button>
+    </div>
+</div>
+
+<div id="describetion">
+    <button id="Start">スタート</button>
+    <br><hr class="hr1">
+    <h2>ゲーム説明</h2>
+    <p>フラッピーバードはフラッピーをジャンプさせて右から迫ってくるパイプを避けるゲームです。<br>パイプにあったたり、地面に落ちると、Game OVER!ハイスコアを目指そう！！</p>
+    <br><hr class="hr1"><br>
+    <h2>操作方法</h2>
+    <p>タッチまたはSpaceキーでフラッピーをジャンプ!!</p>
+    <br><hr class="hr1"><br>
+    <h2>難易度設定</h2>
+    <div id="Level">
+        <botton id="easy">Easy</botton>
+        <botton id="normal">Normal</botton>
+        <botton id="hard">Hard</botton>
+    </div>
+    
+    <br><hr class="hr1"><br>
+    <h2>各種設定</h2>
+    <p>
+        手動でも難易度やスクリーンのサイズを変えられます。
+        それぞれデフォルトが1です。
+    </p>
+    <br><hr class="hr2">
+    
+    <h3>スクリーン設定</h3>
+    <p>デフォルト: 横幅600px × 高さ500px</p>
+    <label for="canvasWidth">スクリーンの横幅: </label>
+    <input type="number" id="canvasWidth" value=1>
+    <br>
+    
+    <label for="canvasHeight">スクリーンの高さ: </label>
+    <input type="number" id="canvasHeight" value=1>
+    <br><hr class="hr2">
+    
+    <h3>フラッピー設定</h3>
+    <p>デフォルト: フラッピーのサイズ50px</p>
+    <label for="flappySize">フラッピーのサイズ: </label>
+    <input type="number" id="flappySize" value=1>
+    <br>
+    
+    <label for="jumpStrength">ジャンプ力: </label>
+    <input type="number" id="jumpStrength" value=1>
+    <br><hr class="hr2">
+    
+    <h3>パイプ設定</h3>
+    <p>デフォルト: パイプの横幅70px, 上下パイプの間隔150px, 次のパイプとの間隔200フレーム<br>
+    差が小さいほど難しい...</p>
+    <label for="pipeSize">パイプの横幅: </label>
+    <input type="number" id="pipeSize" value=1>
+    <br>
+    
+    <label for="pipeGap">上下パイプの間隔: </label>
+    <input type="number" id="pipeGap" value=1>
+    <br>
+    
+    <label for="pipeInterval">次のパイプとの間隔: </label>
+    <input type="number" id="pipeInterval" value=1>
+    <br><hr class="hr2">
+
+    <h3>その他設定</h3> 
+    <p>重力が大きいと難しい...</p>
+    <label for="gravity">重力: </label>
+    <input type="number" id="gravity" value=1>
+    <br><hr class="hr1">
+    
+    <button id="Start">スタート</button>
+</div>
+
 <script src="{{ url_for('static', filename='test.js' )}}"></script>
 {% endblock %}
