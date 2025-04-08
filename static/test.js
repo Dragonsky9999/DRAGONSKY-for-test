@@ -314,8 +314,42 @@ function closeGame(){
 }
 
 document.addEventListener("keydown", handleKeyDown);
-document.getElementById("Start").addEventListener("click", reset);
+const StartBtns = document.querySelectorAll(".StartBtns")
+StartBtns.forEach(StartBtn => {
+    StartBtn.addEventListener("click", reset)
+})
 document.getElementById("reset").addEventListener("click", reset)
-document.getElementById("close").addEventListener("click", () => {
-    closeGame();
+document.getElementById("close").addEventListener("click", closeGame)
+
+//レベルボタン
+const levelBtns = document.querySelectorAll(".levelBtn");
+levelBtns.forEach(levelBtn => {
+    levelBtn.addEventListener("click", () => {
+        levelBtns.forEach(b => b.classList.remove("active"));
+        levelBtn.classList.add("active");
+    })
+})
+
+document.getElementById("easy").addEventListener("click", () => {
+    document.getElementById("jumpStrength").valueAsNumber = 0.8;
+    document.getElementById("gravity").valueAsNumber = 1;
+    document.getElementById("pipeSize").valueAsNumber = 0.8;
+    document.getElementById("pipeGap").valueAsNumber = 1.5;
+    document.getElementById("pipeInterval").valueAsNumber = 1.5;
+})
+
+document.getElementById("normal").addEventListener("click", () => {    
+    document.getElementById("jumpStrength").valueAsNumber = 1;
+    document.getElementById("gravity").valueAsNumber = 1;
+    document.getElementById("pipeSize").valueAsNumber = 1;
+    document.getElementById("pipeGap").valueAsNumber = 1;
+    document.getElementById("pipeInterval").valueAsNumber = 1;
+})
+
+document.getElementById("hard").addEventListener("click", () => {
+    document.getElementById("jumpStrength").valueAsNumber = 1.1;
+    document.getElementById("gravity").valueAsNumber = 0.9;
+    document.getElementById("pipeSize").valueAsNumber = 1;
+    document.getElementById("pipeGap").valueAsNumber = 1;
+    document.getElementById("pipeInterval").valueAsNumber = 0.7;
 })
